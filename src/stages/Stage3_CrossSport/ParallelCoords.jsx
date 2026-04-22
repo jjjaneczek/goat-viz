@@ -1,21 +1,18 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
+import { TAG_COLORS } from '../../components/KeywordSidePanel';
+import { keywordScoreFromBreakdown } from '../../utils/keywordScoring';
 
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 
-const AXES = [
-  { key: 'dominance',     label: 'Dominance' },
-  { key: 'longevity',     label: 'Longevity' },
-  { key: 'accolades',     label: 'Accolades' },
-  { key: 'eraDifficulty', label: 'Era Difficulty' },
-];
-
-export default function ParallelCoords({ athletes, highlightedId, setHighlightedId }) {
+export default function ParallelCoords({ athletes, selectedTags, highlightedId, setHighlightedId }) {
   const svgRef = useRef(null);
   const containerRef = useRef(null);
   const [width, setWidth] = useState(700);
   const [brushFilters, setBrushFilters] = useState({});
-  const [axisOrder, setAxisOrder] = useState(AXES.map(a => a.key));
+  const tags = (selectedTags || []).filter(Boolean);
+  const axes = tags.map(t => ({ key: t, label: t }));
+  const [axisOrder, setAxisOrder] = useState(axes.map(a => a.key));
   const [activeSports, setActiveSports] = useState({
     football: true,
     chess: true,
@@ -23,7 +20,12 @@ export default function ParallelCoords({ athletes, highlightedId, setHighlighted
   });
   const [hoveredAthlete, setHoveredAthlete] = useState(null);
 
-  const axesInOrder = axisOrder.map(key => AXES.find(a => a.key === key)).filter(Boolean);
+  useEffect(() => {
+    setAxisOrder(axes.map(a => a.key));
+    setBrushFilters({});
+  }, [selectedTags]);
+
+  const axesInOrder = axisOrder.map(key => axes.find(a => a.key === key)).filter(Boolean);
   const visibleAthletes = (athletes || []).filter(a => activeSports[a.sport]);
 
   useEffect(() => {
@@ -59,13 +61,18 @@ export default function ParallelCoords({ athletes, highlightedId, setHighlighted
 
     // Line function
     function line(d) {
-      return d3.line()(axesInOrder.map(axis => [xScale(axis.key), axisScale[axis.key](d.breakdown?.[axis.key] || 0)]));
+      return d3.line()(
+        axesInOrder.map(axis => {
+          const val = keywordScoreFromBreakdown(d.breakdown || {}, axis.key);
+          return [xScale(axis.key), axisScale[axis.key](val)];
+        }),
+      );
     }
 
     // Check if athlete passes all brush filters
     function passesFilter(d) {
       return Object.entries(brushFilters).every(([key, [lo, hi]]) => {
-        const val = d.breakdown?.[key] || 0;
+        const val = keywordScoreFromBreakdown(d.breakdown || {}, key);
         return val >= lo && val <= hi;
       });
     }
@@ -101,14 +108,17 @@ export default function ParallelCoords({ athletes, highlightedId, setHighlighted
         .attr('transform', `translate(${xScale(axis.key)},0)`);
 
       axisG.call(d3.axisLeft(axisScale[axis.key]).ticks(5).tickFormat(d3.format('.0%')))
-        .selectAll('text').style('fill', '#6b7280').style('font-size', '9px');
+        .selectAll('text')
+        .style('fill', TAG_COLORS[axis.key] || '#6b7280')
+        .style('font-size', '9px');
       axisG.select('.domain').style('stroke', '#4b5563');
       axisG.selectAll('.tick line').style('stroke', '#4b5563');
 
       // Axis label
       axisG.append('text')
         .attr('y', -12).attr('text-anchor', 'middle')
-        .attr('fill', '#9ca3af').attr('font-size', 12).attr('font-weight', 600)
+        .attr('fill', TAG_COLORS[axis.key] || '#9ca3af')
+        .attr('font-size', 12).attr('font-weight', 600)
         .text(axis.label);
 
       // Brush
@@ -161,6 +171,16 @@ export default function ParallelCoords({ athletes, highlightedId, setHighlighted
 
   return (
     <div ref={containerRef} style={{ backgroundColor: '#1a1a1a', borderRadius: 16, border: '1px solid #2a2a2a', padding: 16 }}>
+      {tags.length === 0 ? (
+        <div style={{ padding: '26px 14px', textAlign: 'center' }}>
+          <p style={{ color: '#9ca3af', fontSize: 13, margin: 0, fontWeight: 700 }}>
+            Select keywords to enable this chart
+          </p>
+          <p style={{ color: '#6b7280', fontSize: 12, margin: '8px 0 0' }}>
+            Parallel coordinates axes come from your side-panel keywords.
+          </p>
+        </div>
+      ) : null}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {Object.entries(SPORT_COLORS).map(([sport, col]) => (
@@ -242,7 +262,7 @@ export default function ParallelCoords({ athletes, highlightedId, setHighlighted
       <p style={{ color: '#4b5563', fontSize: 11, marginBottom: 8 }}>
         Drag on any axis to filter · Hover a line to see athlete · Use chips to filter sports · Reorder axes with arrows
       </p>
-      <svg ref={svgRef} style={{ overflow: 'visible' }} />
+      {tags.length > 0 && <svg ref={svgRef} style={{ overflow: 'visible' }} />}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import BubbleChart from './BubbleChart';
 import ParallelCoords from './ParallelCoords';
 
 export default function Stage3_CrossSport({
-  athletes, overallScores, sportScores, weights, goTo,
+  athletes, overallScores, selectedTags, goTo,
 }) {
   const [highlightedId, setHighlightedId] = useState(null);
 
@@ -35,18 +35,28 @@ export default function Stage3_CrossSport({
       </div>
 
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="01" title="The Field" subtitle="Longevity vs. Dominance — bubble size represents Accolades" />
+        <SectionHeading
+          number="01"
+          title="The Field"
+          subtitle="Shown using your selected keywords (x/y/size = first three keywords)"
+        />
         <BubbleChart
           athletes={allAthletes}
+          selectedTags={selectedTags}
           highlightedId={highlightedId}
           setHighlightedId={setHighlightedId}
         />
       </section>
 
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="02" title="Parallel Profiles" subtitle="Hover lines for athlete names, filter by sport, and reorder axes" />
+        <SectionHeading
+          number="02"
+          title="Parallel Profiles"
+          subtitle="Axes = your selected keywords"
+        />
         <ParallelCoords
           athletes={allAthletes}
+          selectedTags={selectedTags}
           highlightedId={highlightedId}
           setHighlightedId={setHighlightedId}
         />

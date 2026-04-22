@@ -1,6 +1,15 @@
-import { useState, useMemo } from 'react';
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts';
+import { useMemo } from 'react';
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ResponsiveContainer,
+} from 'recharts';
 import { computeSportScoreList } from '../../utils/scoring';
+import { inferWeights } from '../../data/attributeMap';
+import { TAG_COLORS } from '../../components/KeywordSidePanel';
 
 const CATEGORIES = [
   { key: 'dominance',     label: 'Dominance',     color: '#F59E0B' },
@@ -9,10 +18,11 @@ const CATEGORIES = [
   { key: 'eraDifficulty', label: 'Era Difficulty', color: '#EF4444' },
 ];
 
-function summarize(weights, tags) {
-  const sorted = Object.entries(weights).sort((a, b) => b[1] - a[1]);
-  const top2 = sorted.slice(0, 2).map(([k]) => CATEGORIES.find(c => c.key === k)?.label || k);
-  return `You value ${top2[0]} and ${top2[1]} most${tags.length > 0 ? ', shaped by your interest in ' + tags.slice(0, 2).join(' & ') : ''}.`;
+function lmhLabel(intensity) {
+  const v = intensity ?? 1;
+  if (v < 0.75) return 'L';
+  if (v < 1.25) return 'M';
+  return 'H';
 }
 
 function MiniPreview({ athletes, attributeMeta, weights }) {
@@ -64,42 +74,27 @@ function MiniPreview({ athletes, attributeMeta, weights }) {
 }
 
 export default function Step3_WeightReview({
-  weights, setWeights, selectedTags,
+  selectedTags,
+  tagIntensities,
   athletes, attributeMeta,
   onConfirm, onBack,
 }) {
-  const [localWeights, setLocalWeights] = useState({ ...weights });
+  const inferredWeights = useMemo(
+    () => inferWeights(selectedTags, [], tagIntensities),
+    [selectedTags, tagIntensities],
+  );
 
-  function handleSlider(changedKey, newValue) {
-    const prev = localWeights[changedKey];
-    const delta = newValue - prev;
-    const otherKeys = Object.keys(localWeights).filter(k => k !== changedKey);
-    const otherTotal = otherKeys.reduce((s, k) => s + localWeights[k], 0);
-
-    const updated = { [changedKey]: newValue };
-    if (otherTotal > 0) {
-      otherKeys.forEach(k => {
-        updated[k] = Math.max(0.02, localWeights[k] - delta * (localWeights[k] / otherTotal));
-      });
-    } else {
-      const share = (1 - newValue) / otherKeys.length;
-      otherKeys.forEach(k => { updated[k] = Math.max(0.02, share); });
-    }
-
-    // Re-normalize
-    const total = Object.values(updated).reduce((a, b) => a + b, 0);
-    const normalized = Object.fromEntries(Object.keys(updated).map(k => [k, updated[k] / total]));
-    setLocalWeights(normalized);
-    setWeights(normalized);
-  }
-
-  const radarData = CATEGORIES.map(c => ({
-    axis: c.label,
-    value: Math.round(localWeights[c.key] * 100),
-  }));
+  const keywordRadarData = useMemo(
+    () =>
+      selectedTags.map((t) => ({
+        axis: t,
+        value: Math.round((tagIntensities?.[t] ?? 1) * 100),
+      })),
+    [selectedTags, tagIntensities],
+  );
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ maxWidth: 980, margin: '0 auto' }}>
       <h2 style={{
         fontFamily: 'Playfair Display, serif',
         fontSize: 'clamp(1.4rem, 3.5vw, 2rem)',
@@ -108,7 +103,7 @@ export default function Step3_WeightReview({
         Here's what we heard
       </h2>
       <p style={{ color: '#9ca3af', textAlign: 'center', fontSize: 14, marginBottom: 36 }}>
-        {summarize(localWeights, selectedTags)}
+        Adjust keywords in the left panel — your ranking updates instantly.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 32, alignItems: 'start' }}>
@@ -120,38 +115,66 @@ export default function Step3_WeightReview({
           <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>
             Your value profile
           </p>
+          {selectedTags.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <p style={{ color: '#9ca3af', fontSize: 11, margin: '0 0 8px', textAlign: 'center' }}>
+                Keyword values (remembered)
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                {selectedTags.map((t) => (
+                  <div
+                    key={t}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '5px 10px',
+                      borderRadius: 999,
+                      border: `1px solid ${(TAG_COLORS[t] || '#F59E0B')}55`,
+                      backgroundColor: `${(TAG_COLORS[t] || '#F59E0B')}22`,
+                    }}
+                  >
+                    <span style={{ color: '#e5e5e5', fontSize: 11, fontWeight: 700 }}>
+                      {t}
+                    </span>
+                    <span style={{ color: TAG_COLORS[t] || '#F59E0B', fontSize: 11, fontWeight: 900 }}>
+                      {lmhLabel(tagIntensities?.[t] ?? 1)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <ResponsiveContainer width="100%" height={200}>
-            <RadarChart data={radarData}>
+            <RadarChart data={keywordRadarData}>
               <PolarGrid stroke="#2a2a2a" />
               <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+              <PolarRadiusAxis domain={[0, 150]} tick={{ fill: '#4b5563', fontSize: 10 }} />
               <Radar dataKey="value" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.2} />
             </RadarChart>
           </ResponsiveContainer>
-          <MiniPreview athletes={athletes} attributeMeta={attributeMeta} weights={localWeights} />
+          <MiniPreview athletes={athletes} attributeMeta={attributeMeta} weights={inferredWeights} />
         </div>
 
-        {/* Right: sliders */}
+        {/* Right: category weights (derived) */}
         <div style={{
           backgroundColor: '#1a1a1a', borderRadius: 16, padding: 24,
           border: '1px solid #2a2a2a',
         }}>
           <p style={{ color: '#9ca3af', fontSize: 13, marginBottom: 24 }}>
-            Adjust your values — the preview updates live.
+            Derived category weights (from your keywords)
           </p>
           {CATEGORIES.map(cat => (
-            <div key={cat.key} style={{ marginBottom: 24 }}>
+            <div key={cat.key} style={{ marginBottom: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: cat.color }}>{cat.label}</span>
-                <span style={{ fontSize: 13, color: '#9ca3af' }}>
-                  {Math.round(localWeights[cat.key] * 100)}%
+                <span style={{ fontSize: 13, fontWeight: 700, color: cat.color }}>{cat.label}</span>
+                <span style={{ fontSize: 13, color: '#9ca3af', fontWeight: 700 }}>
+                  {Math.round(inferredWeights[cat.key] * 100)}%
                 </span>
               </div>
-              <input
-                type="range" min="2" max="80" step="1"
-                value={Math.round(localWeights[cat.key] * 100)}
-                onChange={e => handleSlider(cat.key, parseInt(e.target.value) / 100)}
-                style={{ width: '100%', accentColor: cat.color, cursor: 'pointer' }}
-              />
+              <div style={{ height: 8, borderRadius: 999, backgroundColor: '#111', border: '1px solid #2a2a2a', overflow: 'hidden' }}>
+                <div style={{ width: `${Math.round(inferredWeights[cat.key] * 100)}%`, height: '100%', backgroundColor: cat.color }} />
+              </div>
             </div>
           ))}
         </div>
@@ -168,7 +191,7 @@ export default function Step3_WeightReview({
           ← Back
         </button>
         <button
-          onClick={() => onConfirm(localWeights)}
+          onClick={() => onConfirm(inferredWeights)}
           style={{
             padding: '14px 44px',
             background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',

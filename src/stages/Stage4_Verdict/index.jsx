@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import Leaderboard from './Leaderboard';
 import Podium from './Podium';
-import WeightModal from './WeightModal';
 
-export default function Stage4_Verdict({ athletes, overallScores, weights, setWeights }) {
-  const [showModal, setShowModal] = useState(false);
+export default function Stage4_Verdict({ athletes, overallScores, selectedTags }) {
 
   const allAthletes = [
     ...athletes.football.map(a => ({ ...a, sport: 'football' })),
@@ -48,38 +45,16 @@ export default function Stage4_Verdict({ athletes, overallScores, weights, setWe
         </p>
       </div>
 
-      <Leaderboard athletes={allAthletes} />
+      <Leaderboard athletes={allAthletes} selectedTags={selectedTags} />
 
       <div style={{
         marginTop: 60, padding: 32, backgroundColor: '#1a1a1a',
         borderRadius: 20, border: '1px solid #2a2a2a', textAlign: 'center',
       }}>
         <p style={{ color: '#9ca3af', fontSize: 15, marginBottom: 8 }}>
-          Your values shaped this result. Change them and see who rises.
+          Your values shaped this result. Use the keyword panel on the left to change them and see who rises.
         </p>
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            padding: '12px 32px', background: 'none',
-            border: '2px solid #F59E0B', borderRadius: 50,
-            color: '#F59E0B', fontFamily: 'DM Sans, sans-serif',
-            fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            transition: 'all 200ms ease',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.1)'; }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-        >
-          Adjust my weights →
-        </button>
       </div>
-
-      {showModal && (
-        <WeightModal
-          weights={weights}
-          setWeights={setWeights}
-          onClose={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 }

@@ -5,13 +5,27 @@ import { inferWeights } from '../../data/attributeMap';
 
 export default function Stage1_Preferences({
   selectedTags, setSelectedTags,
+  tagIntensities, setTagIntensities,
   weights, setWeights,
   goTo, athletes, attributeMeta,
 }) {
   const [step, setStep] = useState(1);
 
   function handleTagsNext() {
-    const inferred = inferWeights(selectedTags);
+    // Initialize per-tag intensities for newly selected tags.
+    const nextIntensities = (() => {
+      const next = { ...tagIntensities };
+      selectedTags.forEach((t) => {
+        if (next[t] == null) next[t] = 1;
+      });
+      Object.keys(next).forEach((t) => {
+        if (!selectedTags.includes(t)) delete next[t];
+      });
+      return next;
+    })();
+    setTagIntensities(nextIntensities);
+
+    const inferred = inferWeights(selectedTags, [], nextIntensities);
     setWeights(inferred);
     setStep(2);
   }
@@ -43,9 +57,8 @@ export default function Stage1_Preferences({
       )}
       {step === 2 && (
         <Step3_WeightReview
-          weights={weights}
-          setWeights={setWeights}
           selectedTags={selectedTags}
+          tagIntensities={tagIntensities}
           athletes={athletes}
           attributeMeta={attributeMeta}
           onConfirm={handleWeightConfirm}

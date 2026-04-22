@@ -1,25 +1,47 @@
 import { useState } from 'react';
+import { TAG_COLORS } from '../../components/KeywordSidePanel';
+import { keywordScoreFromBreakdown } from '../../utils/keywordScoring';
 
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 const SPORT_LABELS = { football: 'Football', chess: 'Chess', boxing: 'Boxing' };
-const CAT_COLORS = { dominance: '#F59E0B', longevity: '#14B8A6', accolades: '#8B5CF6', eraDifficulty: '#EF4444' };
-const CATEGORIES = ['dominance', 'longevity', 'accolades', 'eraDifficulty'];
 
-export default function Leaderboard({ athletes }) {
+export default function Leaderboard({ athletes, selectedTags }) {
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('overallScore');
   const [sortDir, setSortDir] = useState('desc');
+  const tags = (selectedTags || []).filter(Boolean);
+  const displayTags = tags.slice(0, 4);
+  const usingKeywords = displayTags.length > 0;
 
   function handleSort(col) {
     if (sortBy === col) setSortDir(d => d === 'desc' ? 'asc' : 'desc');
     else { setSortBy(col); setSortDir('desc'); }
   }
 
-  const filtered = athletes
+  const augmented = athletes.map((a) => {
+    if (!usingKeywords) return a;
+    const kv = {};
+    displayTags.forEach((t) => {
+      kv[t] = keywordScoreFromBreakdown(a.breakdown || {}, t);
+    });
+    return { ...a, keywordBreakdown: kv };
+  });
+
+  const filtered = augmented
     .filter(a => filter === 'all' || a.sport === filter)
     .sort((a, b) => {
-      const va = sortBy === 'overallScore' ? a.overallScore : (a.breakdown?.[sortBy] || 0);
-      const vb = sortBy === 'overallScore' ? b.overallScore : (b.breakdown?.[sortBy] || 0);
+      const va =
+        sortBy === 'overallScore'
+          ? a.overallScore
+          : usingKeywords
+            ? (a.keywordBreakdown?.[sortBy] || 0)
+            : (a.breakdown?.[sortBy] || 0);
+      const vb =
+        sortBy === 'overallScore'
+          ? b.overallScore
+          : usingKeywords
+            ? (b.keywordBreakdown?.[sortBy] || 0)
+            : (b.breakdown?.[sortBy] || 0);
       return sortDir === 'desc' ? vb - va : va - vb;
     });
 
@@ -63,7 +85,25 @@ export default function Leaderboard({ athletes }) {
         ))}
       </div>
 
-      <div style={{ backgroundColor: '#1a1a1a', borderRadius: 16, border: '1px solid #2a2a2a', overflow: 'hidden' }}>
+      {!usingKeywords ? (
+        <div
+          style={{
+            backgroundColor: '#1a1a1a',
+            borderRadius: 16,
+            border: '1px solid #2a2a2a',
+            padding: 24,
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ color: '#9ca3af', fontSize: 13, margin: 0, fontWeight: 700 }}>
+            Select keywords to enable breakdown columns
+          </p>
+          <p style={{ color: '#6b7280', fontSize: 12, margin: '8px 0 0' }}>
+            The leaderboard breakdown uses only your side-panel keywords.
+          </p>
+        </div>
+      ) : (
+        <div style={{ backgroundColor: '#1a1a1a', borderRadius: 16, border: '1px solid #2a2a2a', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #2a2a2a' }}>
@@ -71,10 +111,9 @@ export default function Leaderboard({ athletes }) {
               <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Athlete</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Sport</th>
               <ColHeader col="overallScore" label="Score" />
-              <ColHeader col="dominance" label="Dom." />
-              <ColHeader col="longevity" label="Long." />
-              <ColHeader col="accolades" label="Acc." />
-              <ColHeader col="eraDifficulty" label="Era" />
+              {displayTags.map((t) => (
+                <ColHeader key={t} col={t} label={t.length > 10 ? `${t.slice(0, 10)}…` : t} />
+              ))}
               <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Breakdown</th>
             </tr>
           </thead>
@@ -103,18 +142,19 @@ export default function Leaderboard({ athletes }) {
                 <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, fontWeight: 700, color: '#F59E0B' }}>
                   {(a.overallScore * 100).toFixed(1)}
                 </td>
-                {CATEGORIES.map(cat => (
-                  <td key={cat} style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#9ca3af' }}>
-                    {Math.round((a.breakdown?.[cat] || 0) * 100)}
+                {displayTags.map((t) => (
+                  <td key={t} style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#9ca3af' }}>
+                    {Math.round((a.keywordBreakdown?.[t] || 0) * 100)}
                   </td>
                 ))}
                 <td style={{ padding: '10px 12px' }}>
                   <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', width: 80, minWidth: 80 }}>
-                    {CATEGORIES.map(cat => {
-                      const val = a.breakdown?.[cat] || 0;
+                    {displayTags.map((k) => {
+                      const val = a.keywordBreakdown?.[k] || 0;
+                      const bg = TAG_COLORS[k] || '#9ca3af';
                       return (
-                        <div key={cat} style={{
-                          flex: val, backgroundColor: CAT_COLORS[cat],
+                        <div key={k} style={{
+                          flex: val, backgroundColor: bg,
                           minWidth: val > 0 ? 2 : 0,
                         }} />
                       );
@@ -126,6 +166,7 @@ export default function Leaderboard({ athletes }) {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

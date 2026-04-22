@@ -66,11 +66,12 @@ export function getQuestionsForTags(selectedTags) {
   return scored.slice(0, 3);
 }
 
-export function inferWeights(selectedTags, pairwiseAnswers) {
+export function inferWeights(selectedTags, pairwiseAnswers, tagIntensities = {}) {
   const deltas = { dominance: 0, longevity: 0, accolades: 0, eraDifficulty: 0 };
   selectedTags.forEach(tag => {
+    const intensity = tagIntensities?.[tag] ?? 1;
     const tw = tagWeights[tag] || {};
-    Object.entries(tw).forEach(([k, v]) => { deltas[k] += v; });
+    Object.entries(tw).forEach(([k, v]) => { deltas[k] += v * intensity; });
   });
   (pairwiseAnswers || []).forEach(({ questionId, choice }) => {
     const q = questionPool.find(q => q.id === questionId);

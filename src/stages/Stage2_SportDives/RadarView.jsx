@@ -1,11 +1,32 @@
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Legend,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { TAG_COLORS } from '../../components/KeywordSidePanel';
+import { keywordScoreFromBreakdown } from '../../utils/keywordScoring';
 
 const PALETTE = ['#F59E0B', '#14B8A6', '#8B5CF6', '#EF4444', '#3B82F6', '#10B981'];
 
-export default function RadarView({ athletes, attributeMeta, selectedAthletes, setSelectedAthletes, color }) {
+export default function RadarView({
+  athletes,
+  attributeMeta,
+  sportScores,
+  selectedTags,
+  selectedAthletes,
+  setSelectedAthletes,
+  color,
+}) {
   const safeAthletes = athletes || [];
   const safeAttributeMeta = attributeMeta || [];
+  const safeSportScores = sportScores || {};
   const safeSelectedAthletes = selectedAthletes || [];
+  const safeSelectedTags = (selectedTags || []).filter(Boolean);
 
   function toggleAthlete(id) {
     if (safeSelectedAthletes.includes(id)) {
@@ -17,10 +38,13 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
 
   const selected = safeAthletes.filter(a => safeSelectedAthletes.includes(a.id));
 
-  const radarData = safeAttributeMeta.map(attr => {
-    const point = { axis: attr.label };
-    selected.forEach(a => {
-      point[a.id] = Math.round((a.normalized?.[attr.name] ?? 0) * 100);
+  const usingKeywords = safeSelectedTags.length > 0;
+
+  const radarData = safeSelectedTags.map((tag) => {
+    const point = { axis: tag };
+    selected.forEach((a) => {
+      const breakdown = safeSportScores[a.id]?.breakdown || {};
+      point[a.id] = Math.round(keywordScoreFromBreakdown(breakdown, tag) * 100);
     });
     return point;
   });
@@ -65,7 +89,16 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
         })}
       </div>
 
-      {selected.length === 0 ? (
+      {!usingKeywords ? (
+        <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <p style={{ color: '#9ca3af', fontSize: 13, margin: 0, fontWeight: 700 }}>
+            Select keywords to enable this comparison
+          </p>
+          <p style={{ color: '#6b7280', fontSize: 12, margin: '8px 0 0' }}>
+            Athlete comparison radar uses only your side-panel keywords.
+          </p>
+        </div>
+      ) : selected.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#4b5563' }}>
           Select athletes above to compare
         </div>
@@ -73,7 +106,26 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
         <ResponsiveContainer width="100%" height={320}>
           <RadarChart data={radarData}>
             <PolarGrid stroke="#2a2a2a" />
-            <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+            <PolarAngleAxis
+              dataKey="axis"
+              tick={(props) => {
+                const { x, y, payload } = props;
+                const label = payload?.value;
+                const col = usingKeywords ? (TAG_COLORS[label] || '#9ca3af') : '#9ca3af';
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    fill={col}
+                    fontSize="11"
+                    fontWeight={usingKeywords ? 700 : 400}
+                  >
+                    {label}
+                  </text>
+                );
+              }}
+            />
             <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4b5563', fontSize: 9 }} />
             <Tooltip content={<CustomTooltip />} />
             {selected.map((a, i) => (

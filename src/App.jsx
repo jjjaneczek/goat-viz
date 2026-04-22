@@ -1,10 +1,12 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { footballAthletes, footballAttributeMeta } from './data/football';
 import { chessAthletes, chessAttributeMeta } from './data/chess';
 import { boxingAthletes, boxingAttributeMeta } from './data/boxing';
 import { normalizeAthletes } from './utils/normalize';
 import { computeAllSportScores, computeOverallScores } from './utils/scoring';
+import { inferWeights } from './data/attributeMap';
 import ProgressBar from './components/ProgressBar';
+import KeywordSidePanel from './components/KeywordSidePanel';
 import Stage0_Intro from './stages/Stage0_Intro';
 import Stage1_Preferences from './stages/Stage1_Preferences/index';
 import Stage2_SportDives from './stages/Stage2_SportDives/index';
@@ -21,6 +23,7 @@ export default function App() {
   const [currentStage, setCurrentStage] = useState(0);
   const [currentSport, setCurrentSport] = useState('football');
   const [selectedTags, setSelectedTags] = useState([]);
+  const [tagIntensities, setTagIntensities] = useState({});
   const [weights, setWeights] = useState(initialWeights);
   const [selectedAthletes, setSelectedAthletes] = useState({
     football: [normalizedFootball[0].id, normalizedFootball[1].id],
@@ -44,10 +47,18 @@ export default function App() {
 
   const goTo = useCallback((stage) => setCurrentStage(stage), []);
 
+  // Keep ranking weights synced to keyword choices across ALL stages.
+  useEffect(() => {
+    if (!selectedTags.length) return;
+    setWeights(inferWeights(selectedTags, [], tagIntensities));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTags, tagIntensities]);
+
   const sharedProps = {
     currentStage, goTo,
     currentSport, setCurrentSport,
     selectedTags, setSelectedTags,
+    tagIntensities, setTagIntensities,
     weights, setWeights,
     selectedAthletes, setSelectedAthletes,
     sportScores, overallScores,
@@ -58,6 +69,14 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f0f0f', color: '#e5e5e5' }}>
       {currentStage > 0 && <ProgressBar currentStage={currentStage} goTo={goTo} />}
+      {currentStage > 0 && selectedTags.length > 0 && (
+        <KeywordSidePanel
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
+          tagIntensities={tagIntensities}
+          setTagIntensities={setTagIntensities}
+        />
+      )}
       {currentStage === 0 && <Stage0_Intro goTo={goTo} />}
       {currentStage === 1 && <Stage1_Preferences {...sharedProps} />}
       {currentStage === 2 && <Stage2_SportDives {...sharedProps} />}
