@@ -31,7 +31,7 @@ export default function Stage4_Verdict({ athletes, overallScores, selectedTags }
         </p>
       </div>
 
-      <Podium top3={top3} />
+      <Podium top3={top3} selectedTags={selectedTags} />
 
       <div style={{ margin: '60px 0 32px' }}>
         <h3 style={{

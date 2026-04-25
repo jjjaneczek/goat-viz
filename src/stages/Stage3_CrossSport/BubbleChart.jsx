@@ -5,7 +5,7 @@ import { keywordScoreFromBreakdown } from '../../utils/keywordScoring';
 
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 
-export default function BubbleChart({ athletes, selectedTags, highlightedId, setHighlightedId }) {
+export default function BubbleChart({ athletes, selectedTags, bubbleAxes, highlightedId, setHighlightedId }) {
   const svgRef = useRef(null);
   const containerRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
@@ -19,7 +19,10 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
 
   useEffect(() => {
     const tags = (selectedTags || []).filter(Boolean);
-    if (!svgRef.current || !athletes.length || tags.length < 3) return;
+    const xTag = bubbleAxes?.x || tags[0];
+    const yTag = bubbleAxes?.y || tags[1];
+
+    if (!svgRef.current || !athletes.length || !xTag || !yTag) return;
     const height = 380;
     const margin = { top: 20, right: 20, bottom: 48, left: 52 };
     const W = width - margin.left - margin.right;
@@ -32,13 +35,9 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
 
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const xTag = tags[0];
-    const yTag = tags[1];
-    const rTag = tags[2];
-
     const xVal = (a) => keywordScoreFromBreakdown(a.breakdown || {}, xTag);
     const yVal = (a) => keywordScoreFromBreakdown(a.breakdown || {}, yTag);
-    const rVal = (a) => keywordScoreFromBreakdown(a.breakdown || {}, rTag);
+    const rVal = (a) => a.overallScore || 0;
 
     const x = d3.scaleLinear().domain([0, 1]).range([0, W]);
     const y = d3.scaleLinear().domain([0, 1]).range([H, 0]);
@@ -102,7 +101,7 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
     circles.transition().duration(600).delay((_, i) => i * 20)
       .attr('r', d => r(rVal(d)));
 
-  }, [athletes, highlightedId, width, selectedTags]);
+  }, [athletes, highlightedId, width, selectedTags, bubbleAxes]);
 
   return (
     <div ref={containerRef} style={{ backgroundColor: '#1a1a1a', borderRadius: 16, border: '1px solid #2a2a2a', padding: 16, position: 'relative' }}>
@@ -112,7 +111,7 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
             Select at least 3 keywords to enable this chart
           </p>
           <p style={{ color: '#6b7280', fontSize: 12, margin: '8px 0 0' }}>
-            Bubble chart uses keyword #1 (x), #2 (y), and #3 (size).
+            Bubble chart uses the chosen x, y, and size keywords.
           </p>
         </div>
       ) : null}
@@ -127,10 +126,13 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 18, height: 18, borderRadius: '50%', backgroundColor: '#555', opacity: 0.6 }} />
           <span style={{ fontSize: 11, color: '#6b7280' }}>
-            size = {(selectedTags || [])[2] || '—'}
+            size = overall weighted score
           </span>
         </div>
-        {(selectedTags || []).slice(0, 3).map((t) => (
+        {[
+          bubbleAxes?.x,
+          bubbleAxes?.y,
+        ].filter(Boolean).map((t) => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: TAG_COLORS[t] || '#9ca3af' }} />
             <span style={{ fontSize: 11, color: TAG_COLORS[t] || '#9ca3af', fontWeight: 700 }}>{t}</span>
@@ -138,7 +140,7 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
         ))}
       </div>
 
-      {(selectedTags || []).filter(Boolean).length >= 3 && (
+      {(selectedTags || []).filter(Boolean).length >= 2 && bubbleAxes?.x && bubbleAxes?.y && (
         <svg ref={svgRef} style={{ overflow: 'visible' }} />
       )}
 
@@ -154,11 +156,17 @@ export default function BubbleChart({ athletes, selectedTags, highlightedId, set
             {tooltip.athlete.name}
           </p>
           <p style={{ color: '#9ca3af', margin: '0 0 6px', textTransform: 'capitalize' }}>{tooltip.athlete.sport}</p>
-          {(selectedTags || []).slice(0, 3).map((t) => (
+          {[
+            bubbleAxes?.x,
+            bubbleAxes?.y,
+          ].filter(Boolean).map((t) => (
             <p key={t} style={{ color: TAG_COLORS[t] || '#9ca3af', margin: '2px 0' }}>
               {t}: {Math.round(keywordScoreFromBreakdown(tooltip.athlete.breakdown || {}, t) * 100)}
             </p>
           ))}
+          <p style={{ color: '#9ca3af', margin: '2px 0' }}>
+            Overall: {Math.round((tooltip.athlete.overallScore || 0) * 100)}
+          </p>
         </div>
       )}
     </div>

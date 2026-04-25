@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import BubbleChart from './BubbleChart';
 import ParallelCoords from './ParallelCoords';
 
@@ -6,6 +6,25 @@ export default function Stage3_CrossSport({
   athletes, overallScores, selectedTags, goTo,
 }) {
   const [highlightedId, setHighlightedId] = useState(null);
+  const availableTags = useMemo(() => (selectedTags || []).filter(Boolean), [selectedTags]);
+  const [bubbleAxes, setBubbleAxes] = useState({ x: '', y: '' });
+
+  useEffect(() => {
+    if (!availableTags.length) {
+      setBubbleAxes({ x: '', y: '' });
+      return;
+    }
+
+    setBubbleAxes((prev) => {
+      const fallback = [...availableTags, '', ''];
+      const next = {
+        x: availableTags.includes(prev.x) ? prev.x : fallback[0],
+        y: availableTags.includes(prev.y) ? prev.y : fallback[1],
+      };
+
+      return next;
+    });
+  }, [availableTags]);
 
   // Flatten all athletes with their sport and overall breakdown
   const allAthletes = [
@@ -38,11 +57,17 @@ export default function Stage3_CrossSport({
         <SectionHeading
           number="01"
           title="The Field"
-          subtitle="Shown using your selected keywords (x/y/size = first three keywords)"
+          subtitle="Pick x and y from your selected keywords; size is fixed to overall score"
+        />
+        <BubbleAxisPicker
+          availableTags={availableTags}
+          bubbleAxes={bubbleAxes}
+          setBubbleAxes={setBubbleAxes}
         />
         <BubbleChart
           athletes={allAthletes}
           selectedTags={selectedTags}
+          bubbleAxes={bubbleAxes}
           highlightedId={highlightedId}
           setHighlightedId={setHighlightedId}
         />
@@ -76,6 +101,55 @@ export default function Stage3_CrossSport({
           See the Verdict →
         </button>
       </div>
+    </div>
+  );
+}
+
+function BubbleAxisPicker({ availableTags, bubbleAxes, setBubbleAxes }) {
+  const labels = [
+    { key: 'x', label: 'X Axis' },
+    { key: 'y', label: 'Y Axis' },
+  ];
+
+  if (availableTags.length < 2) return null;
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+        gap: 10,
+        marginBottom: 14,
+        padding: 14,
+        background: 'linear-gradient(180deg, #171717, #111111)',
+        border: '1px solid #2a2a2a',
+        borderRadius: 16,
+      }}
+    >
+      {labels.map(({ key, label }) => (
+        <label key={key} style={{ display: 'grid', gap: 6 }}>
+          <span style={{ color: '#9ca3af', fontSize: 11, fontWeight: 700 }}>{label}</span>
+          <select
+            value={bubbleAxes[key]}
+            onChange={(e) => setBubbleAxes((prev) => ({ ...prev, [key]: e.target.value }))}
+            style={{
+              width: '100%',
+              backgroundColor: '#111827',
+              border: '1px solid #2a2a2a',
+              borderRadius: 10,
+              color: '#e5e5e5',
+              padding: '10px 12px',
+              fontSize: 12,
+            }}
+          >
+            {availableTags.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))}
     </div>
   );
 }
