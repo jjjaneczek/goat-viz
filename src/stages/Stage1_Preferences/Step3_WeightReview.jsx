@@ -93,10 +93,60 @@ export default function Step3_WeightReview({
   onConfirm,
   onBack,
 }) {
+  const sports = ["football", "chess", "boxing"];
+
   const inferredWeights = useMemo(
     () => inferWeights(selectedTags, [], tagIntensities),
     [selectedTags, tagIntensities],
   );
+
+  const heatMapData = useMemo(() => {
+    const allAttributes = Array.from(
+      new Map(
+        sports.flatMap((sport) =>
+          (attributeMeta?.[sport] || []).map((attr) => [attr.name, attr]),
+        ),
+      ).values(),
+    );
+
+    const overallAttributeAverages = Object.fromEntries(
+      allAttributes.map((attr) => {
+        const values = sports.flatMap((sport) =>
+          (athletes?.[sport] || [])
+            .map((athlete) => athlete.normalized?.[attr.name])
+            .filter((value) => Number.isFinite(value)),
+        );
+
+        const average = values.length
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
+
+        return [attr.name, average];
+      }),
+    );
+
+    return allAttributes.map((attr) => {
+      const row = { key: attr.name, label: attr.label };
+      const overallAverage = overallAttributeAverages[attr.name] || 0;
+
+      sports.forEach((sport) => {
+        const sportAthletes = athletes?.[sport] || [];
+        const values = sportAthletes
+          .map((athlete) => athlete.normalized?.[attr.name])
+          .filter((value) => Number.isFinite(value));
+
+        const sportAverage = values.length
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
+
+        row[sport] = overallAverage > 0
+          ? (sportAverage - overallAverage) / overallAverage
+          : 0;
+      });
+
+      return row;
+    });
+  }, [athletes, attributeMeta]);
 
   const keywordPercentages = useMemo(() => {
     if (!selectedTags.length) return {};
@@ -330,6 +380,99 @@ export default function Step3_WeightReview({
               </p>
             </div>
           )}
+        </div>
+      </div>
+
+      <div
+        style={{
+          backgroundColor: "#1a1a1a",
+          borderRadius: 16,
+          padding: 24,
+          border: "1px solid #2a2a2a",
+          marginTop: 20,
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
+          <div>
+            <p style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 800, margin: 0 }}>
+              Attribute heat map
+            </p>
+            <p style={{ color: "#6b7280", fontSize: 12, margin: "4px 0 0" }}>
+              Signed deviation from the dataset-wide average for each attribute.
+            </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ color: "#6b7280", fontSize: 11 }}>-</span>
+            <div style={{ width: 140, height: 10, borderRadius: 999, background: "linear-gradient(90deg, #ef4444, #171717, #F59E0B)" }} />
+            <span style={{ color: "#6b7280", fontSize: 11 }}>+</span>
+          </div>
+        </div>
+
+        <div style={{ overflowX: "auto" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(180px, 1.3fr) repeat(3, minmax(110px, 1fr))",
+              gap: 8,
+              minWidth: 520,
+            }}
+          >
+            <div style={{ color: "#9ca3af", fontSize: 11, fontWeight: 800, padding: "0 2px" }}>
+              Attribute
+            </div>
+            {sports.map((sport) => (
+              <div
+                key={sport}
+                style={{ color: "#9ca3af", fontSize: 11, fontWeight: 800, textTransform: "capitalize", padding: "0 2px" }}
+              >
+                {sport}
+              </div>
+            ))}
+
+            {heatMapData.flatMap((row) => [
+              <div
+                key={`${row.key}-label`}
+                style={{
+                  color: "#e5e5e5",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "10px 2px",
+                  borderBottom: "1px solid #262626",
+                }}
+              >
+                {row.label}
+              </div>,
+              ...sports.map((sport) => {
+                const value = row[sport] ?? 0;
+                const magnitude = Math.min(1, Math.abs(value));
+                const background = value >= 0
+                  ? `linear-gradient(135deg, rgba(245,158,11,${0.16 + magnitude * 0.7}), rgba(251,191,36,${0.18 + magnitude * 0.55}))`
+                  : `linear-gradient(135deg, rgba(239,68,68,${0.16 + magnitude * 0.7}), rgba(248,113,113,${0.18 + magnitude * 0.55}))`;
+                return (
+                  <div
+                    key={`${row.key}-${sport}`}
+                    style={{
+                      background,
+                      border: `1px solid ${value >= 0 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.18)"}`,
+                      borderRadius: 12,
+                      padding: "10px 12px",
+                      minHeight: 44,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                    title={`${row.label} - ${sport}: ${value >= 0 ? "+" : ""}${value.toFixed(2)}`}
+                  >
+                    <span style={{ color: "#f5f5f5", fontSize: 12, fontWeight: 700 }}>
+                      {value >= 0 ? "+" : ""}{value.toFixed(2)}
+                    </span>
+                  </div>
+                );
+              }),
+            ])}
+          </div>
         </div>
       </div>
 
