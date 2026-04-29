@@ -1,15 +1,11 @@
-const ALL_TAGS = [
-  'Consistency', 'Peak Dominance', 'Titles & Trophies', 'Longevity',
-  'Rivalry', 'Beating the Odds', 'Records', 'Era Difficulty',
-  'Mental Strength', 'Innovation', 'Impact on the Sport', 'Clutch Performance',
-];
+import { METRICS } from '../../data/attributeMap';
 
 export default function Step1_Tags({ selectedTags, setSelectedTags, onNext }) {
-  function toggleTag(tag) {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter(t => t !== tag));
+  function toggleTag(key) {
+    if (selectedTags.includes(key)) {
+      setSelectedTags(selectedTags.filter(t => t !== key));
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      setSelectedTags([...selectedTags, key]);
     }
   }
 
@@ -22,35 +18,36 @@ export default function Step1_Tags({ selectedTags, setSelectedTags, onNext }) {
         What makes a sporting legend?
       </h2>
       <p style={{ color: '#9ca3af', marginBottom: 8, fontSize: 15 }}>
-        Select all keywords that matter most to you
+        Select the metrics that matter most to you
       </p>
       <p style={{ color: '#6b7280', marginBottom: 32, fontSize: 13 }}>
-        {selectedTags.length} selected
+        {selectedTags.length} of {METRICS.length} selected
       </p>
 
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+        display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
         gap: 12, marginBottom: 40,
       }}>
-        {ALL_TAGS.map(tag => {
-          const selected = selectedTags.includes(tag);
+        {METRICS.map(metric => {
+          const selected = selectedTags.includes(metric.key);
           return (
             <button
-              key={tag}
-              onClick={() => toggleTag(tag)}
+              key={metric.key}
+              onClick={() => toggleTag(metric.key)}
               style={{
-                padding: '10px 14px',
+                padding: '12px 16px',
                 borderRadius: 50,
-                border: selected ? '2px solid #F59E0B' : '2px solid #2a2a2a',
-                backgroundColor: selected ? 'rgba(245,158,11,0.15)' : '#1a1a1a',
-                color: selected ? '#F59E0B' : '#9ca3af',
-                fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: selected ? 600 : 400,
+                border: selected ? `2px solid ${metric.color}` : '2px solid #2a2a2a',
+                backgroundColor: selected ? `${metric.color}22` : '#1a1a1a',
+                color: selected ? metric.color : '#9ca3af',
+                fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: selected ? 600 : 400,
                 cursor: 'pointer',
                 transition: 'all 200ms ease',
                 transform: selected ? 'scale(1.03)' : 'scale(1)',
+                textAlign: 'center',
               }}
             >
-              {tag}
+              {metric.label}
             </button>
           );
         })}
@@ -71,7 +68,7 @@ export default function Step1_Tags({ selectedTags, setSelectedTags, onNext }) {
           transition: 'all 300ms ease',
         }}
       >
-        Next →
+        Explore Rankings →
       </button>
     </div>
   );

@@ -11,6 +11,9 @@ export const chessAthletes = [
       longevity_index: 85,
       accolade_density: 95,
       opposition_quality: 95,
+      peak_performance_index: 99,
+      consistency_rating: 98,
+      pressure_performance: 97,
     },
     timeline: [
       { year: 2005, value: 2650 }, { year: 2006, value: 2698 }, { year: 2007, value: 2733 },
@@ -39,6 +42,9 @@ export const chessAthletes = [
       longevity_index: 92,
       accolade_density: 93,
       opposition_quality: 93,
+      peak_performance_index: 98,
+      consistency_rating: 96,
+      pressure_performance: 95,
     },
     timeline: [
       { year: 1981, value: 2650 }, { year: 1982, value: 2680 }, { year: 1983, value: 2710 },
@@ -68,6 +74,9 @@ export const chessAthletes = [
       longevity_index: 55,
       accolade_density: 92,
       opposition_quality: 88,
+      peak_performance_index: 99,
+      consistency_rating: 50,
+      pressure_performance: 90,
     },
     timeline: [
       { year: 1959, value: 2510 }, { year: 1960, value: 2570 }, { year: 1961, value: 2620 },
@@ -92,6 +101,9 @@ export const chessAthletes = [
       longevity_index: 88,
       accolade_density: 84,
       opposition_quality: 88,
+      peak_performance_index: 92,
+      consistency_rating: 92,
+      pressure_performance: 86,
     },
     timeline: [
       { year: 1970, value: 2540 }, { year: 1971, value: 2570 }, { year: 1972, value: 2600 },
@@ -120,6 +132,9 @@ export const chessAthletes = [
       longevity_index: 90,
       accolade_density: 80,
       opposition_quality: 90,
+      peak_performance_index: 91,
+      consistency_rating: 91,
+      pressure_performance: 88,
     },
     timeline: [
       { year: 1988, value: 2530 }, { year: 1990, value: 2575 }, { year: 1992, value: 2650 },
@@ -148,6 +163,9 @@ export const chessAthletes = [
       longevity_index: 85,
       accolade_density: 78,
       opposition_quality: 80,
+      peak_performance_index: 89,
+      consistency_rating: 86,
+      pressure_performance: 82,
     },
     timeline: [
       { year: 1935, value: 2560 }, { year: 1937, value: 2600 }, { year: 1939, value: 2620 },
@@ -173,6 +191,9 @@ export const chessAthletes = [
       longevity_index: 65,
       accolade_density: 74,
       opposition_quality: 80,
+      peak_performance_index: 90,
+      consistency_rating: 65,
+      pressure_performance: 82,
     },
     timeline: [
       { year: 1956, value: 2480 }, { year: 1957, value: 2540 }, { year: 1958, value: 2600 },
@@ -197,6 +218,9 @@ export const chessAthletes = [
       longevity_index: 80,
       accolade_density: 76,
       opposition_quality: 90,
+      peak_performance_index: 88,
+      consistency_rating: 86,
+      pressure_performance: 88,
     },
     timeline: [
       { year: 1992, value: 2535 }, { year: 1993, value: 2625 }, { year: 1994, value: 2715 },
@@ -223,6 +247,9 @@ export const chessAthletes = [
       longevity_index: 78,
       accolade_density: 82,
       opposition_quality: 72,
+      peak_performance_index: 95,
+      consistency_rating: 94,
+      pressure_performance: 84,
     },
     timeline: [
       { year: 1905, value: 2380 }, { year: 1908, value: 2480 }, { year: 1910, value: 2550 },
@@ -247,6 +274,9 @@ export const chessAthletes = [
       longevity_index: 98,
       accolade_density: 70,
       opposition_quality: 68,
+      peak_performance_index: 88,
+      consistency_rating: 96,
+      pressure_performance: 90,
     },
     timeline: [
       { year: 1890, value: 2300 }, { year: 1893, value: 2430 }, { year: 1895, value: 2540 },
@@ -262,9 +292,12 @@ export const chessAthletes = [
 ];
 
 export const chessAttributeMeta = [
-  { name: 'dominance_score',    label: 'Dominance',        category: 'dominance',      weight: 1.0 },
-  { name: 'championship_rate',  label: 'Championship Rate', category: 'accolades',      weight: 0.9 },
-  { name: 'longevity_index',    label: 'Longevity',        category: 'longevity',      weight: 1.0 },
-  { name: 'accolade_density',   label: 'Accolades',        category: 'accolades',      weight: 1.0 },
-  { name: 'opposition_quality', label: 'Era Difficulty',   category: 'eraDifficulty',  weight: 1.0 },
+  { name: 'dominance_score',          label: 'Dominance Score',      color: '#F59E0B' },
+  { name: 'championship_rate',        label: 'Championship Rate',    color: '#FBBF24' },
+  { name: 'longevity_index',          label: 'Longevity Index',      color: '#14B8A6' },
+  { name: 'accolade_density',         label: 'Accolade Density',     color: '#8B5CF6' },
+  { name: 'opposition_quality',       label: 'Opposition Quality',   color: '#EF4444' },
+  { name: 'peak_performance_index',   label: 'Peak Performance',     color: '#F97316' },
+  { name: 'consistency_rating',       label: 'Consistency Rating',   color: '#06B6D4' },
+  { name: 'pressure_performance',     label: 'Pressure Performance', color: '#EC4899' },
 ];

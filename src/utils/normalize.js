@@ -1,9 +1,7 @@
-/**
- * Min-max normalize an array of athletes' raw attribute values to 0–1.
- * Returns a new array with a `normalized` object added to each athlete.
- */
-export function normalizeAthletes(athletes, attributeMeta) {
-  const attrNames = attributeMeta.map(a => a.name);
+import { METRICS } from '../data/attributeMap';
+
+export function normalizeAthletes(athletes) {
+  const attrNames = METRICS.map(m => m.key);
 
   const mins = {};
   const maxs = {};

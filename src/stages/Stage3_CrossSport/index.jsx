@@ -35,7 +35,7 @@ export default function Stage3_CrossSport({
       </div>
 
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="01" title="The Field" subtitle="Longevity vs. Dominance — bubble size represents Accolades" />
+        <SectionHeading number="01" title="The Field" subtitle="Longevity Index vs. Dominance Score — bubble size = Accolade Density" />
         <BubbleChart
           athletes={allAthletes}
           highlightedId={highlightedId}

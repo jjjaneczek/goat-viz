@@ -11,6 +11,9 @@ export const footballAthletes = [
       longevity_index: 88,
       accolade_density: 98,
       opposition_quality: 90,
+      peak_performance_index: 99,
+      consistency_rating: 90,
+      pressure_performance: 87,
     },
     timeline: [
       { year: 2005, value: 1 }, { year: 2006, value: 8 }, { year: 2007, value: 17 },
@@ -41,6 +44,9 @@ export const footballAthletes = [
       longevity_index: 92,
       accolade_density: 88,
       opposition_quality: 90,
+      peak_performance_index: 95,
+      consistency_rating: 95,
+      pressure_performance: 84,
     },
     timeline: [
       { year: 2004, value: 7 }, { year: 2005, value: 9 }, { year: 2006, value: 12 },
@@ -69,6 +75,9 @@ export const footballAthletes = [
       longevity_index: 82,
       accolade_density: 90,
       opposition_quality: 78,
+      peak_performance_index: 97,
+      consistency_rating: 89,
+      pressure_performance: 94,
     },
     timeline: [
       { year: 1957, value: 19 }, { year: 1958, value: 58 }, { year: 1959, value: 45 },
@@ -95,6 +104,9 @@ export const footballAthletes = [
       longevity_index: 70,
       accolade_density: 85,
       opposition_quality: 82,
+      peak_performance_index: 99,
+      consistency_rating: 70,
+      pressure_performance: 96,
     },
     timeline: [
       { year: 1978, value: 5 }, { year: 1979, value: 12 }, { year: 1980, value: 22 },
@@ -120,6 +132,9 @@ export const footballAthletes = [
       longevity_index: 74,
       accolade_density: 80,
       opposition_quality: 88,
+      peak_performance_index: 96,
+      consistency_rating: 82,
+      pressure_performance: 95,
     },
     timeline: [
       { year: 1990, value: 3 }, { year: 1991, value: 7 }, { year: 1992, value: 9 },
@@ -146,6 +161,9 @@ export const footballAthletes = [
       longevity_index: 62,
       accolade_density: 86,
       opposition_quality: 84,
+      peak_performance_index: 96,
+      consistency_rating: 60,
+      pressure_performance: 88,
     },
     timeline: [
       { year: 1994, value: 12 }, { year: 1995, value: 30 }, { year: 1996, value: 42 },
@@ -172,6 +190,9 @@ export const footballAthletes = [
       longevity_index: 76,
       accolade_density: 72,
       opposition_quality: 84,
+      peak_performance_index: 92,
+      consistency_rating: 85,
+      pressure_performance: 80,
     },
     timeline: [
       { year: 1995, value: 4 }, { year: 1996, value: 3 }, { year: 1997, value: 5 },
@@ -197,6 +218,9 @@ export const footballAthletes = [
       longevity_index: 72,
       accolade_density: 88,
       opposition_quality: 80,
+      peak_performance_index: 95,
+      consistency_rating: 87,
+      pressure_performance: 90,
     },
     timeline: [
       { year: 1965, value: 9 }, { year: 1966, value: 12 }, { year: 1967, value: 16 },
@@ -222,6 +246,9 @@ export const footballAthletes = [
       longevity_index: 60,
       accolade_density: 75,
       opposition_quality: 84,
+      peak_performance_index: 93,
+      consistency_rating: 63,
+      pressure_performance: 80,
     },
     timeline: [
       { year: 1999, value: 7 }, { year: 2000, value: 11 }, { year: 2001, value: 14 },
@@ -245,6 +272,9 @@ export const footballAthletes = [
       longevity_index: 50,
       accolade_density: 92,
       opposition_quality: 82,
+      peak_performance_index: 95,
+      consistency_rating: 75,
+      pressure_performance: 92,
     },
     timeline: [
       { year: 1982, value: 9 }, { year: 1983, value: 18 }, { year: 1984, value: 28 },
@@ -260,9 +290,12 @@ export const footballAthletes = [
 ];
 
 export const footballAttributeMeta = [
-  { name: 'dominance_score',    label: 'Dominance',        category: 'dominance',      weight: 1.0 },
-  { name: 'championship_rate',  label: 'Championship Rate', category: 'accolades',      weight: 0.9 },
-  { name: 'longevity_index',    label: 'Longevity',        category: 'longevity',      weight: 1.0 },
-  { name: 'accolade_density',   label: 'Accolades',        category: 'accolades',      weight: 1.0 },
-  { name: 'opposition_quality', label: 'Era Difficulty',   category: 'eraDifficulty',  weight: 1.0 },
+  { name: 'dominance_score',          label: 'Dominance Score',      color: '#F59E0B' },
+  { name: 'championship_rate',        label: 'Championship Rate',    color: '#FBBF24' },
+  { name: 'longevity_index',          label: 'Longevity Index',      color: '#14B8A6' },
+  { name: 'accolade_density',         label: 'Accolade Density',     color: '#8B5CF6' },
+  { name: 'opposition_quality',       label: 'Opposition Quality',   color: '#EF4444' },
+  { name: 'peak_performance_index',   label: 'Peak Performance',     color: '#F97316' },
+  { name: 'consistency_rating',       label: 'Consistency Rating',   color: '#06B6D4' },
+  { name: 'pressure_performance',     label: 'Pressure Performance', color: '#EC4899' },
 ];

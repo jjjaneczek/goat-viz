@@ -4,10 +4,14 @@ import * as d3 from 'd3';
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 
 const AXES = [
-  { key: 'dominance',     label: 'Dominance' },
-  { key: 'longevity',     label: 'Longevity' },
-  { key: 'accolades',     label: 'Accolades' },
-  { key: 'eraDifficulty', label: 'Era Difficulty' },
+  { key: 'dominance_score',          label: 'Dominance' },
+  { key: 'championship_rate',        label: 'Championship' },
+  { key: 'longevity_index',          label: 'Longevity' },
+  { key: 'accolade_density',         label: 'Accolades' },
+  { key: 'opposition_quality',       label: 'Opposition' },
+  { key: 'peak_performance_index',   label: 'Peak Perf.' },
+  { key: 'consistency_rating',       label: 'Consistency' },
+  { key: 'pressure_performance',     label: 'Pressure' },
 ];
 
 export default function ParallelCoords({ athletes, highlightedId, setHighlightedId }) {

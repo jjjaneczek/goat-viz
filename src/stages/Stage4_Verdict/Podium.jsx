@@ -1,32 +1,30 @@
 import { useEffect, useState } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts';
+import { METRICS } from '../../data/attributeMap';
 
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 const SPORT_LABELS = { football: 'Football', chess: 'Chess', boxing: 'Boxing' };
 const PALETTE_RADAR = ['#F59E0B', '#14B8A6', '#8B5CF6'];
 
-const CATEGORIES = [
-  { key: 'dominance',     label: 'Dominance' },
-  { key: 'longevity',     label: 'Longevity' },
-  { key: 'accolades',     label: 'Accolades' },
-  { key: 'eraDifficulty', label: 'Era' },
-];
-
 const HEIGHTS = [200, 140, 100];
 const RANKS = ['1st', '2nd', '3rd'];
-const ORDER = [1, 0, 2]; // display order: 2nd, 1st, 3rd
+const ORDER = [1, 0, 2];
 
 function initials(name) {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
-export default function Podium({ top3 }) {
+export default function Podium({ top3, selectedTags }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
 
-  const radarData = CATEGORIES.map(c => {
-    const point = { axis: c.label };
-    top3.forEach((a, i) => { point[`p${i}`] = Math.round((a.breakdown?.[c.key] || 0) * 100); });
+  const activeMetrics = selectedTags && selectedTags.length > 0
+    ? METRICS.filter(m => selectedTags.includes(m.key))
+    : METRICS;
+
+  const radarData = activeMetrics.map(m => {
+    const point = { axis: m.label };
+    top3.forEach((a, i) => { point[`p${i}`] = Math.round((a.breakdown?.[m.key] || 0) * 100); });
     return point;
   });
 
@@ -68,7 +66,7 @@ export default function Podium({ top3 }) {
                 <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
                   {SPORT_LABELS[athlete.sport]}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: color }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color }}>
                   {(athlete.overallScore * 100).toFixed(1)}
                 </div>
               </div>
@@ -111,23 +109,29 @@ export default function Podium({ top3 }) {
             </div>
           ))}
         </div>
-        <ResponsiveContainer width="100%" height={260}>
-          <RadarChart data={radarData}>
-            <PolarGrid stroke="#2a2a2a" />
-            <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
-            {top3.map((a, i) => (
-              <Radar
-                key={a.id}
-                name={a.name}
-                dataKey={`p${i}`}
-                stroke={PALETTE_RADAR[i]}
-                fill={PALETTE_RADAR[i]}
-                fillOpacity={0.12}
-                strokeWidth={2}
-              />
-            ))}
-          </RadarChart>
-        </ResponsiveContainer>
+        {activeMetrics.length === 0 ? (
+          <p style={{ color: '#4b5563', fontSize: 12, textAlign: 'center', padding: '40px 0' }}>
+            Select metrics from the panel to see the radar chart.
+          </p>
+        ) : (
+          <ResponsiveContainer width="100%" height={260}>
+            <RadarChart data={radarData}>
+              <PolarGrid stroke="#2a2a2a" />
+              <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+              {top3.map((a, i) => (
+                <Radar
+                  key={a.id}
+                  name={a.name}
+                  dataKey={`p${i}`}
+                  stroke={PALETTE_RADAR[i]}
+                  fill={PALETTE_RADAR[i]}
+                  fillOpacity={0.12}
+                  strokeWidth={2}
+                />
+              ))}
+            </RadarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

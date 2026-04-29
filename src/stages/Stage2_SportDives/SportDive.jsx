@@ -1,11 +1,14 @@
 import RadarView from './RadarView';
 import RankedBarChart from './RankedBarChart';
 import CareerTimeline from './CareerTimeline';
+import { METRICS } from '../../data/attributeMap';
+
+const METRIC_LABEL = Object.fromEntries(METRICS.map(m => [m.key, m.label]));
 
 export default function SportDive({
   sportKey, sport, athletes, attributeMeta, sportScores,
   selectedAthletes, setSelectedAthletes,
-  weights, setWeights, goTo,
+  weights, setWeights, goTo, selectedTags,
 }) {
   const safeAthletes = athletes || [];
   const safeAttributeMeta = attributeMeta || [];
@@ -21,7 +24,7 @@ export default function SportDive({
     ? Object.entries(safeSportScores[topAthlete.id]?.breakdown || {})
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
-        .map(([k]) => ({ dominance: 'Dominance', longevity: 'Longevity', accolades: 'Accolades', eraDifficulty: 'Era Difficulty' }[k] || k))
+        .map(([k]) => METRIC_LABEL[k] || k)
     : [];
 
   const initials = (name) => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -43,13 +46,15 @@ export default function SportDive({
 
       {/* Section: Radar */}
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="01" title="Athlete Comparison" subtitle="Select athletes to compare across all dimensions" />
+        <SectionHeading number="01" title="Athlete Comparison" subtitle="Showing your selected metrics — add or remove via the side panel" />
         <RadarView
           athletes={safeAthletes}
           attributeMeta={safeAttributeMeta}
           selectedAthletes={safeSelectedAthletes}
           setSelectedAthletes={setSelectedAthletes}
           color={safeSport.color}
+          selectedTags={selectedTags}
+          weights={weights}
         />
       </section>
 
@@ -58,12 +63,11 @@ export default function SportDive({
         <SectionHeading number="02" title="GOAT Rankings" subtitle="All athletes ranked by your current weights" />
         <RankedBarChart
           athletes={safeAthletes}
-          attributeMeta={safeAttributeMeta}
           sportScores={safeSportScores}
           selectedAthletes={safeSelectedAthletes}
           weights={weights}
-          setWeights={setWeights}
           color={safeSport.color}
+          selectedTags={selectedTags}
         />
       </section>
 

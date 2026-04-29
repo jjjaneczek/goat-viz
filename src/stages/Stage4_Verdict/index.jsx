@@ -3,7 +3,7 @@ import Leaderboard from './Leaderboard';
 import Podium from './Podium';
 import WeightModal from './WeightModal';
 
-export default function Stage4_Verdict({ athletes, overallScores, weights, setWeights }) {
+export default function Stage4_Verdict({ athletes, overallScores, weights, setWeights, selectedTags }) {
   const [showModal, setShowModal] = useState(false);
 
   const allAthletes = [
@@ -34,7 +34,7 @@ export default function Stage4_Verdict({ athletes, overallScores, weights, setWe
         </p>
       </div>
 
-      <Podium top3={top3} />
+      <Podium top3={top3} selectedTags={selectedTags} />
 
       <div style={{ margin: '60px 0 32px' }}>
         <h3 style={{
@@ -48,7 +48,7 @@ export default function Stage4_Verdict({ athletes, overallScores, weights, setWe
         </p>
       </div>
 
-      <Leaderboard athletes={allAthletes} />
+      <Leaderboard athletes={allAthletes} selectedTags={selectedTags} />
 
       <div style={{
         marginTop: 60, padding: 32, backgroundColor: '#1a1a1a',

@@ -32,7 +32,7 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
     const x = d3.scaleLinear().domain([0, 1]).range([0, W]);
     const y = d3.scaleLinear().domain([0, 1]).range([H, 0]);
     const r = d3.scaleLinear()
-      .domain(d3.extent(athletes, a => a.breakdown?.accolades || 0))
+      .domain(d3.extent(athletes, a => a.breakdown?.accolade_density || 0))
       .range([5, 22]);
 
     // Axes
@@ -65,8 +65,8 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
 
     // Bubbles
     const circles = g.selectAll('circle').data(athletes).enter().append('circle')
-      .attr('cx', d => x(d.breakdown?.longevity || 0))
-      .attr('cy', d => y(d.breakdown?.dominance || 0))
+      .attr('cx', d => x(d.breakdown?.longevity_index || 0))
+      .attr('cy', d => y(d.breakdown?.dominance_score || 0))
       .attr('r', 0)
       .attr('fill', d => SPORT_COLORS[d.sport])
       .attr('fill-opacity', d => highlightedId ? (d.id === highlightedId ? 0.9 : 0.15) : 0.7)
@@ -89,7 +89,7 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
       .on('click', (_, d) => setHighlightedId(prev => prev === d.id ? null : d.id));
 
     circles.transition().duration(600).delay((_, i) => i * 20)
-      .attr('r', d => r(d.breakdown?.accolades || 0));
+      .attr('r', d => r(d.breakdown?.accolade_density || 0));
 
   }, [athletes, highlightedId, width]);
 
@@ -124,10 +124,12 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
           </p>
           <p style={{ color: '#9ca3af', margin: '0 0 6px', textTransform: 'capitalize' }}>{tooltip.athlete.sport}</p>
           {[
-            ['Dominance', 'dominance', '#F59E0B'],
-            ['Longevity', 'longevity', '#14B8A6'],
-            ['Accolades', 'accolades', '#8B5CF6'],
-            ['Era Difficulty', 'eraDifficulty', '#EF4444'],
+            ['Dominance', 'dominance_score', '#F59E0B'],
+            ['Peak Perf.', 'peak_performance_index', '#F97316'],
+            ['Longevity', 'longevity_index', '#14B8A6'],
+            ['Consistency', 'consistency_rating', '#06B6D4'],
+            ['Pressure', 'pressure_performance', '#EC4899'],
+            ['Accolades', 'accolade_density', '#8B5CF6'],
           ].map(([label, key, col]) => (
             <p key={key} style={{ color: col, margin: '2px 0' }}>
               {label}: {Math.round((tooltip.athlete.breakdown?.[key] || 0) * 100)}

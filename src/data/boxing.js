@@ -11,6 +11,9 @@ export const boxingAthletes = [
       longevity_index: 85,
       accolade_density: 90,
       opposition_quality: 92,
+      peak_performance_index: 97,
+      consistency_rating: 86,
+      pressure_performance: 98,
     },
     timeline: [
       { year: 1960, value: 72 }, { year: 1961, value: 78 }, { year: 1962, value: 82 },
@@ -38,6 +41,9 @@ export const boxingAthletes = [
       longevity_index: 88,
       accolade_density: 88,
       opposition_quality: 85,
+      peak_performance_index: 98,
+      consistency_rating: 86,
+      pressure_performance: 92,
     },
     timeline: [
       { year: 1940, value: 78 }, { year: 1941, value: 85 }, { year: 1942, value: 90 },
@@ -66,6 +72,9 @@ export const boxingAthletes = [
       longevity_index: 86,
       accolade_density: 85,
       opposition_quality: 80,
+      peak_performance_index: 94,
+      consistency_rating: 92,
+      pressure_performance: 95,
     },
     timeline: [
       { year: 1934, value: 72 }, { year: 1935, value: 84 }, { year: 1936, value: 86 },
@@ -90,6 +99,9 @@ export const boxingAthletes = [
       longevity_index: 65,
       accolade_density: 82,
       opposition_quality: 75,
+      peak_performance_index: 89,
+      consistency_rating: 95,
+      pressure_performance: 92,
     },
     timeline: [
       { year: 1947, value: 68 }, { year: 1948, value: 74 }, { year: 1949, value: 80 },
@@ -113,6 +125,9 @@ export const boxingAthletes = [
       longevity_index: 65,
       accolade_density: 85,
       opposition_quality: 82,
+      peak_performance_index: 97,
+      consistency_rating: 65,
+      pressure_performance: 73,
     },
     timeline: [
       { year: 1985, value: 78 }, { year: 1986, value: 88 }, { year: 1987, value: 95 },
@@ -137,6 +152,9 @@ export const boxingAthletes = [
       longevity_index: 88,
       accolade_density: 88,
       opposition_quality: 88,
+      peak_performance_index: 95,
+      consistency_rating: 97,
+      pressure_performance: 95,
     },
     timeline: [
       { year: 1996, value: 74 }, { year: 1997, value: 80 }, { year: 1998, value: 84 },
@@ -164,6 +182,9 @@ export const boxingAthletes = [
       longevity_index: 86,
       accolade_density: 86,
       opposition_quality: 86,
+      peak_performance_index: 94,
+      consistency_rating: 83,
+      pressure_performance: 84,
     },
     timeline: [
       { year: 1995, value: 62 }, { year: 1997, value: 70 }, { year: 1999, value: 76 },
@@ -190,6 +211,9 @@ export const boxingAthletes = [
       longevity_index: 82,
       accolade_density: 84,
       opposition_quality: 88,
+      peak_performance_index: 93,
+      consistency_rating: 91,
+      pressure_performance: 93,
     },
     timeline: [
       { year: 1973, value: 62 }, { year: 1974, value: 70 }, { year: 1975, value: 76 },
@@ -214,6 +238,9 @@ export const boxingAthletes = [
       longevity_index: 98,
       accolade_density: 80,
       opposition_quality: 86,
+      peak_performance_index: 93,
+      consistency_rating: 80,
+      pressure_performance: 80,
     },
     timeline: [
       { year: 1968, value: 70 }, { year: 1970, value: 78 }, { year: 1972, value: 85 },
@@ -239,6 +266,9 @@ export const boxingAthletes = [
       longevity_index: 75,
       accolade_density: 85,
       opposition_quality: 92,
+      peak_performance_index: 91,
+      consistency_rating: 78,
+      pressure_performance: 88,
     },
     timeline: [
       { year: 1977, value: 74 }, { year: 1978, value: 80 }, { year: 1979, value: 86 },
@@ -255,9 +285,12 @@ export const boxingAthletes = [
 ];
 
 export const boxingAttributeMeta = [
-  { name: 'dominance_score',    label: 'Dominance',        category: 'dominance',      weight: 1.0 },
-  { name: 'championship_rate',  label: 'Championship Rate', category: 'accolades',      weight: 0.9 },
-  { name: 'longevity_index',    label: 'Longevity',        category: 'longevity',      weight: 1.0 },
-  { name: 'accolade_density',   label: 'Accolades',        category: 'accolades',      weight: 1.0 },
-  { name: 'opposition_quality', label: 'Era Difficulty',   category: 'eraDifficulty',  weight: 1.0 },
+  { name: 'dominance_score',          label: 'Dominance Score',      color: '#F59E0B' },
+  { name: 'championship_rate',        label: 'Championship Rate',    color: '#FBBF24' },
+  { name: 'longevity_index',          label: 'Longevity Index',      color: '#14B8A6' },
+  { name: 'accolade_density',         label: 'Accolade Density',     color: '#8B5CF6' },
+  { name: 'opposition_quality',       label: 'Opposition Quality',   color: '#EF4444' },
+  { name: 'peak_performance_index',   label: 'Peak Performance',     color: '#F97316' },
+  { name: 'consistency_rating',       label: 'Consistency Rating',   color: '#06B6D4' },
+  { name: 'pressure_performance',     label: 'Pressure Performance', color: '#EC4899' },
 ];

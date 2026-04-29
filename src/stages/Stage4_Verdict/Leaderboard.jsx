@@ -1,14 +1,17 @@
 import { useState } from 'react';
+import { METRICS } from '../../data/attributeMap';
 
 const SPORT_COLORS = { football: '#F59E0B', chess: '#14B8A6', boxing: '#EF4444' };
 const SPORT_LABELS = { football: 'Football', chess: 'Chess', boxing: 'Boxing' };
-const CAT_COLORS = { dominance: '#F59E0B', longevity: '#14B8A6', accolades: '#8B5CF6', eraDifficulty: '#EF4444' };
-const CATEGORIES = ['dominance', 'longevity', 'accolades', 'eraDifficulty'];
 
-export default function Leaderboard({ athletes }) {
+export default function Leaderboard({ athletes, selectedTags }) {
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('overallScore');
   const [sortDir, setSortDir] = useState('desc');
+
+  const activeMetrics = selectedTags && selectedTags.length > 0
+    ? METRICS.filter(m => selectedTags.includes(m.key))
+    : METRICS;
 
   function handleSort(col) {
     if (sortBy === col) setSortDir(d => d === 'desc' ? 'asc' : 'desc');
@@ -71,10 +74,9 @@ export default function Leaderboard({ athletes }) {
               <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Athlete</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Sport</th>
               <ColHeader col="overallScore" label="Score" />
-              <ColHeader col="dominance" label="Dom." />
-              <ColHeader col="longevity" label="Long." />
-              <ColHeader col="accolades" label="Acc." />
-              <ColHeader col="eraDifficulty" label="Era" />
+              {activeMetrics.map(m => (
+                <ColHeader key={m.key} col={m.key} label={m.label.split(' ')[0] + '.'} />
+              ))}
               <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#6b7280' }}>Breakdown</th>
             </tr>
           </thead>
@@ -82,10 +84,7 @@ export default function Leaderboard({ athletes }) {
             {filtered.map((a, i) => (
               <tr
                 key={a.id}
-                style={{
-                  borderBottom: '1px solid #1f1f1f',
-                  transition: 'background-color 150ms ease',
-                }}
+                style={{ borderBottom: '1px solid #1f1f1f', transition: 'background-color 150ms ease' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#222'; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
               >
@@ -103,18 +102,19 @@ export default function Leaderboard({ athletes }) {
                 <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, fontWeight: 700, color: '#F59E0B' }}>
                   {(a.overallScore * 100).toFixed(1)}
                 </td>
-                {CATEGORIES.map(cat => (
-                  <td key={cat} style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#9ca3af' }}>
-                    {Math.round((a.breakdown?.[cat] || 0) * 100)}
+                {activeMetrics.map(m => (
+                  <td key={m.key} style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#9ca3af' }}>
+                    {Math.round((a.breakdown?.[m.key] || 0) * 100)}
                   </td>
                 ))}
                 <td style={{ padding: '10px 12px' }}>
                   <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', width: 80, minWidth: 80 }}>
-                    {CATEGORIES.map(cat => {
-                      const val = a.breakdown?.[cat] || 0;
+                    {activeMetrics.map(m => {
+                      const val = a.breakdown?.[m.key] || 0;
                       return (
-                        <div key={cat} style={{
-                          flex: val, backgroundColor: CAT_COLORS[cat],
+                        <div key={m.key} style={{
+                          flex: val,
+                          backgroundColor: m.color,
                           minWidth: val > 0 ? 2 : 0,
                         }} />
                       );

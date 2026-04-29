@@ -9,6 +9,7 @@ const SPORTS = [
 export default function Stage2_SportDives({
   currentSport, setCurrentSport, goTo,
   selectedAthletes, setSelectedAthletes,
+  selectedTags,
   weights, setWeights, athletes, attributeMeta, sportScores,
 }) {
   const sport = SPORTS.find(s => s.key === currentSport) || SPORTS[0];
@@ -60,6 +61,7 @@ export default function Stage2_SportDives({
         weights={weights}
         setWeights={setWeights}
         goTo={goTo}
+        selectedTags={selectedTags}
       />
     </div>
   );

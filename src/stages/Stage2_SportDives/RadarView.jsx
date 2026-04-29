@@ -2,10 +2,16 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, 
 
 const PALETTE = ['#F59E0B', '#14B8A6', '#8B5CF6', '#EF4444', '#3B82F6', '#10B981'];
 
-export default function RadarView({ athletes, attributeMeta, selectedAthletes, setSelectedAthletes, color }) {
+export default function RadarView({ athletes, attributeMeta, selectedAthletes, setSelectedAthletes, color, selectedTags, weights }) {
   const safeAthletes = athletes || [];
-  const safeAttributeMeta = attributeMeta || [];
   const safeSelectedAthletes = selectedAthletes || [];
+  const safeWeights = weights || {};
+
+  const activeAttrs = selectedTags && selectedTags.length > 0
+    ? (attributeMeta || []).filter(attr => selectedTags.includes(attr.name))
+    : (attributeMeta || []);
+
+  const numActive = activeAttrs.length;
 
   function toggleAthlete(id) {
     if (safeSelectedAthletes.includes(id)) {
@@ -17,10 +23,13 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
 
   const selected = safeAthletes.filter(a => safeSelectedAthletes.includes(a.id));
 
-  const radarData = safeAttributeMeta.map(attr => {
+  const radarData = activeAttrs.map(attr => {
     const point = { axis: attr.label };
     selected.forEach(a => {
-      point[a.id] = Math.round((a.normalized?.[attr.name] ?? 0) * 100);
+      const baseValue = (a.normalized?.[attr.name] ?? 0) * 100;
+      const w = safeWeights[attr.name] ?? (numActive > 0 ? 1 / numActive : 0);
+      const scaleFactor = w * numActive;
+      point[a.id] = Math.min(100, Math.round(baseValue * scaleFactor));
     });
     return point;
   });
@@ -65,7 +74,11 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
         })}
       </div>
 
-      {selected.length === 0 ? (
+      {activeAttrs.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#4b5563' }}>
+          Select at least one metric in the side panel to compare
+        </div>
+      ) : selected.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#4b5563' }}>
           Select athletes above to compare
         </div>
