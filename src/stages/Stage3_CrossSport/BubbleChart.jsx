@@ -91,7 +91,7 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
     circles.transition().duration(600).delay((_, i) => i * 20)
       .attr('r', d => r(d.breakdown?.accolade_density || 0));
 
-  }, [athletes, highlightedId, width]);
+  }, [athletes, highlightedId, setHighlightedId, width]);
 
   return (
     <div ref={containerRef} style={{ backgroundColor: '#1a1a1a', borderRadius: 16, border: '1px solid #2a2a2a', padding: 16, position: 'relative' }}>

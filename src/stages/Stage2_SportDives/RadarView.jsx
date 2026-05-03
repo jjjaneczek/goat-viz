@@ -2,7 +2,25 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, 
 
 const PALETTE = ['#F59E0B', '#14B8A6', '#8B5CF6', '#EF4444', '#3B82F6', '#10B981'];
 
-export default function RadarView({ athletes, attributeMeta, selectedAthletes, setSelectedAthletes, color, selectedTags, weights }) {
+function RadarTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div style={{
+      backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a',
+      borderRadius: 8, padding: '10px 14px', fontSize: 12,
+    }}>
+      <p style={{ color: '#9ca3af', margin: '0 0 6px', fontWeight: 600 }}>{label}</p>
+      {payload.map((p) => (
+        <p key={p.dataKey} style={{ color: p.color, margin: '2px 0' }}>
+          {p.name}: {p.value}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+export default function RadarView({ athletes, attributeMeta, selectedAthletes, setSelectedAthletes, selectedTags, weights }) {
   const safeAthletes = athletes || [];
   const safeSelectedAthletes = selectedAthletes || [];
   const safeWeights = weights || {};
@@ -12,14 +30,6 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
     : (attributeMeta || []);
 
   const numActive = activeAttrs.length;
-
-  function toggleAthlete(id) {
-    if (safeSelectedAthletes.includes(id)) {
-      setSelectedAthletes(safeSelectedAthletes.filter(a => a !== id));
-    } else {
-      setSelectedAthletes([...safeSelectedAthletes, id]);
-    }
-  }
 
   const selected = safeAthletes.filter(a => safeSelectedAthletes.includes(a.id));
 
@@ -34,44 +44,71 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
     return point;
   });
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div style={{
-        backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a',
-        borderRadius: 8, padding: '10px 14px', fontSize: 12,
-      }}>
-        <p style={{ color: '#9ca3af', margin: '0 0 6px', fontWeight: 600 }}>{label}</p>
-        {payload.map(p => (
-          <p key={p.dataKey} style={{ color: p.color, margin: '2px 0' }}>
-            {safeAthletes.find(a => a.id === p.dataKey)?.name}: {p.value}
-          </p>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div style={{ backgroundColor: '#1a1a1a', borderRadius: 16, padding: 24, border: '1px solid #2a2a2a' }}>
-      {/* Athlete selector pills */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-        {safeAthletes.map((a) => {
-          const isSelected = safeSelectedAthletes.includes(a.id);
-          const idx = safeSelectedAthletes.indexOf(a.id);
-          const col = idx >= 0 ? PALETTE[idx % PALETTE.length] : '#4b5563';
-          return (
-            <button key={a.id} onClick={() => toggleAthlete(a.id)} style={{
-              padding: '6px 14px', borderRadius: 50, fontSize: 12, fontWeight: isSelected ? 600 : 400,
-              border: `1.5px solid ${col}`,
-              backgroundColor: isSelected ? `${col}22` : 'transparent',
-              color: isSelected ? col : '#9ca3af',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}>
-              {a.name}
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: 12 }}>
+            Selected athletes come from the leaderboard.
+          </p>
+          {safeSelectedAthletes.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedAthletes([])}
+              style={{
+                background: 'none',
+                border: '1px solid #4b5563',
+                borderRadius: 999,
+                color: '#9ca3af',
+                padding: '5px 10px',
+                fontSize: 11,
+                cursor: 'pointer',
+              }}
+            >
+              Clear selected
             </button>
-          );
-        })}
+          )}
+        </div>
+
+        {safeSelectedAthletes.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {safeSelectedAthletes.map((id, index) => {
+              const athlete = safeAthletes.find((a) => a.id === id);
+              if (!athlete) return null;
+              const col = PALETTE[index % PALETTE.length];
+              return (
+                <span
+                  key={id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    border: `1px solid ${col}`,
+                    backgroundColor: `${col}22`,
+                    color: col,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: col }} />
+                  {athlete.name}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{
+            padding: '14px 16px',
+            borderRadius: 12,
+            border: '1px dashed #3f3f46',
+            color: '#6b7280',
+            fontSize: 12,
+          }}>
+            Pick athletes from the leaderboard to compare them here.
+          </div>
+        )}
       </div>
 
       {activeAttrs.length === 0 ? (
@@ -88,7 +125,7 @@ export default function RadarView({ athletes, attributeMeta, selectedAthletes, s
             <PolarGrid stroke="#2a2a2a" />
             <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
             <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4b5563', fontSize: 9 }} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<RadarTooltip />} />
             {selected.map((a, i) => (
               <Radar
                 key={a.id}

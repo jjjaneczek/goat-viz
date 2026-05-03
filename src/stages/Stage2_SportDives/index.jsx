@@ -10,7 +10,7 @@ export default function Stage2_SportDives({
   currentSport, setCurrentSport, goTo,
   selectedAthletes, setSelectedAthletes,
   selectedTags,
-  weights, setWeights, athletes, attributeMeta, sportScores,
+  weights, athletes, attributeMeta, sportScores,
 }) {
   const sport = SPORTS.find(s => s.key === currentSport) || SPORTS[0];
   const activeSportKey = sport.key;
@@ -59,7 +59,6 @@ export default function Stage2_SportDives({
         selectedAthletes={safeSelectedAthletesBySport[activeSportKey] || []}
         setSelectedAthletes={(ids) => setSelectedAthletes(prev => ({ ...prev, [activeSportKey]: ids }))}
         weights={weights}
-        setWeights={setWeights}
         goTo={goTo}
         selectedTags={selectedTags}
       />

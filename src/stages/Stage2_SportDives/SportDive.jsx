@@ -8,7 +8,7 @@ const METRIC_LABEL = Object.fromEntries(METRICS.map(m => [m.key, m.label]));
 export default function SportDive({
   sportKey, sport, athletes, attributeMeta, sportScores,
   selectedAthletes, setSelectedAthletes,
-  weights, setWeights, goTo, selectedTags,
+  weights, selectedTags,
 }) {
   const safeAthletes = athletes || [];
   const safeAttributeMeta = attributeMeta || [];
@@ -52,7 +52,6 @@ export default function SportDive({
           attributeMeta={safeAttributeMeta}
           selectedAthletes={safeSelectedAthletes}
           setSelectedAthletes={setSelectedAthletes}
-          color={safeSport.color}
           selectedTags={selectedTags}
           weights={weights}
         />
@@ -63,7 +62,6 @@ export default function SportDive({
         <SectionHeading number="02" title="GOAT Rankings" subtitle="All athletes ranked by your current weights" />
         <RankedBarChart
           athletes={safeAthletes}
-          sportScores={safeSportScores}
           selectedAthletes={safeSelectedAthletes}
           weights={weights}
           color={safeSport.color}
@@ -111,20 +109,6 @@ export default function SportDive({
             Score: <strong style={{ color: '#e5e5e5' }}>{(topAthlete.score * 100).toFixed(1)}</strong>
             {' '}· Top traits: <strong style={{ color: '#e5e5e5' }}>{top2Reasons.join(', ')}</strong>
           </p>
-          <button
-            onClick={() => goTo(3)}
-            style={{
-              padding: '12px 32px', background: 'none',
-              border: `2px solid ${safeSport.color}`, borderRadius: 50,
-              color: safeSport.color, fontFamily: 'DM Sans, sans-serif',
-              fontWeight: 600, fontSize: 14, cursor: 'pointer',
-              transition: 'all 200ms ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${safeSport.color}22`; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-          >
-            See how the scores compare →
-          </button>
         </div>
       )}
     </div>
