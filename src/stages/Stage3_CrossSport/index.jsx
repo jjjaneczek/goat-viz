@@ -1,12 +1,10 @@
-import { useState } from 'react';
 import BubbleChart from './BubbleChart';
 import ParallelCoords from './ParallelCoords';
 
 export default function Stage3_CrossSport({
-  athletes, overallScores, sportScores, weights, goTo,
+  athletes, overallScores,
+  highlightedAthleteId, setHighlightedAthleteId,
 }) {
-  const [highlightedId, setHighlightedId] = useState(null);
-
   // Flatten all athletes with their sport and overall breakdown
   const allAthletes = [
     ...athletes.football.map(a => ({ ...a, sport: 'football' })),
@@ -38,34 +36,20 @@ export default function Stage3_CrossSport({
         <SectionHeading number="01" title="The Field" subtitle="Longevity Index vs. Dominance Score — bubble size = Accolade Density" />
         <BubbleChart
           athletes={allAthletes}
-          highlightedId={highlightedId}
-          setHighlightedId={setHighlightedId}
+          highlightedId={highlightedAthleteId}
+          setHighlightedId={setHighlightedAthleteId}
         />
       </section>
 
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="02" title="Parallel Profiles" subtitle="Hover lines for athlete names, filter by sport, and reorder axes" />
+        <SectionHeading number="02" title="Parallel Profiles" subtitle="Hover lines for athlete names, filter by sport, and drag axis labels to reorder" />
         <ParallelCoords
           athletes={allAthletes}
-          highlightedId={highlightedId}
-          setHighlightedId={setHighlightedId}
+          highlightedId={highlightedAthleteId}
+          setHighlightedId={setHighlightedAthleteId}
         />
       </section>
 
-      <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={() => goTo(4)}
-          style={{
-            padding: '16px 48px',
-            background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
-            border: 'none', borderRadius: 50, color: '#0f0f0f',
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16,
-            cursor: 'pointer', boxShadow: '0 0 30px rgba(245,158,11,0.3)',
-          }}
-        >
-          See the Verdict →
-        </button>
-      </div>
     </div>
   );
 }
