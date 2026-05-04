@@ -35,22 +35,35 @@ export default function BubbleChart({ athletes, highlightedId, setHighlightedId 
       .domain(d3.extent(athletes, a => a.breakdown?.accolade_density || 0))
       .range([5, 22]);
 
-    // Axes
-    g.append('g').attr('transform', `translate(0,${H})`)
-      .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('.0%')))
-      .selectAll('text').style('fill', '#6b7280').style('font-size', '10px');
-    g.select('.domain').remove();
-    g.selectAll('.tick line').style('stroke', '#2a2a2a');
+    const axisLineColor = '#e5e7eb';
+    const axisTickColor = '#9ca3af';
 
-    g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('.0%')))
-      .selectAll('text').style('fill', '#6b7280').style('font-size', '10px');
-    g.select('.domain').remove();
+    // Grid lines (under axes so spine lines stay crisp on top)
+    const gridG = g.append('g').attr('class', 'grid')
+      .call(d3.axisLeft(y).ticks(5).tickSize(-W).tickFormat(''));
+    gridG.selectAll('line').style('stroke', '#1f1f1f').style('stroke-dasharray', '3,3');
+    gridG.select('.domain').remove();
 
-    // Grid lines
-    g.append('g').attr('class', 'grid')
-      .call(d3.axisLeft(y).ticks(5).tickSize(-W).tickFormat(''))
-      .selectAll('line').style('stroke', '#1f1f1f').style('stroke-dasharray', '3,3');
-    g.selectAll('.grid .domain').remove();
+    const xAxisG = g.append('g').attr('transform', `translate(0,${H})`)
+      .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('.0%')));
+    xAxisG.selectAll('text').style('fill', '#9ca3af').style('font-size', '10px');
+    xAxisG.select('.domain')
+      .attr('stroke', axisLineColor)
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linecap', 'square');
+    xAxisG.selectAll('.tick line')
+      .style('stroke', axisTickColor)
+      .attr('stroke-width', 1.25);
+
+    const yAxisG = g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('.0%')));
+    yAxisG.selectAll('text').style('fill', '#9ca3af').style('font-size', '10px');
+    yAxisG.select('.domain')
+      .attr('stroke', axisLineColor)
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linecap', 'square');
+    yAxisG.selectAll('.tick line')
+      .style('stroke', axisTickColor)
+      .attr('stroke-width', 1.25);
 
     // Axis labels
     svg.append('text')
