@@ -57,26 +57,26 @@ export default function SportDive({
         />
       </section>
 
+      {/* Section: Timeline */}
+      <section style={{ marginBottom: 52 }}>
+        <SectionHeading number="02" title="Career Timeline" subtitle="Peak performance and longevity over the years" />
+        <CareerTimeline
+          athletes={safeAthletes}
+          selectedAthletes={safeSelectedAthletes}
+          color={safeSport.color}
+          sportKey={sportKey}
+        />
+      </section>
+
       {/* Section: Bar Chart */}
       <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="02" title="GOAT Rankings" subtitle="All athletes ranked by your current weights" />
+        <SectionHeading number="03" title="GOAT Rankings" subtitle="All athletes ranked by your current weights" />
         <RankedBarChart
           athletes={safeAthletes}
           selectedAthletes={safeSelectedAthletes}
           weights={weights}
           color={safeSport.color}
           selectedTags={selectedTags}
-        />
-      </section>
-
-      {/* Section: Timeline */}
-      <section style={{ marginBottom: 52 }}>
-        <SectionHeading number="03" title="Career Timeline" subtitle="Peak performance and longevity over the years" />
-        <CareerTimeline
-          athletes={safeAthletes}
-          selectedAthletes={safeSelectedAthletes}
-          color={safeSport.color}
-          sportKey={sportKey}
         />
       </section>
 
